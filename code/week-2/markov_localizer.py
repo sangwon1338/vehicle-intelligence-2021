@@ -47,6 +47,12 @@ def motion_model(position, mov, priors, map_size, stdev):
     # moving to the current position from that prior.
     # Multiply this probability to the prior probability of
     # the vehicle "was" at that prior position.
+    
+    
+    for i in range(len(priors)):
+
+        G = norm_pdf(position-i,1,stdev)
+        position_prob += G * priors[i]
     return position_prob
 
 # Observation model (assuming independent Gaussian)
@@ -64,6 +70,15 @@ def observation_model(landmarks, observations, pseudo_ranges, stdev):
     #     d: observation distance
     #     mu: expected mean distance, given by pseudo_ranges
     #     sig: squared standard deviation of measurement
+    if len(observations) == 0 or len(observations) > len(pseudo_ranges):
+       distance_prob = 0.0
+    else:
+        
+          for i in range(len(observations)):
+              distance_prob *= norm_pdf(observations[i],pseudo_ranges[i],stdev)
+        
+    #     print(sum(pseudo_ranges)/len(pseudo_ranges))
+    #     print(observations,pseudo_ranges)
     return distance_prob
 
 # Normalize a probability distribution so that the sum equals 1.0.
