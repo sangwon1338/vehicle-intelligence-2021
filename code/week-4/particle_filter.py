@@ -92,21 +92,99 @@ class ParticleFilter:
         #    The resulting probability is the product of probabilities
         #    for all the observations.
         # 5. Update the particle's weight by the calculated probability.
+        w_s = 0.0
+        transformed_observations = []
+        for p in self.particles:
+            w_t = 1.0
+            landmarks =[]
+            
+            for i,val in map_landmarks.item():
+                d = distance(p,val)
+                if d < sensor_range:
+                    landmarks.append({'i':i,'x':val['x'],'y':val['y']})
+            if len(landmarks) == 0:
+                continue
+         
+         linear_trans_x = [np.cos(p['t']), -np.sin(p['t']), p['x']]
+         linear_trans_y = [np.sin(p['t']), np.cos(p['t']), p['y']]
+         for i,val in enumerate(observations):
+                cur_cordi = [val['x'], val['y'], 1]
+                
+                transformed_x = np.dot(cur_cordi, linear_trans_x)
+                transformed_y = np.dot(cur_cordi, linear_trans_y)
+                transformed_observations.append({'x': transformed_x, 'y': transformed_y})
+          
+          a = self.associate(landmarks, transformed_observations) 
+          temp_id = []
+          for i in range(len(a)):
+                temp_id.append(a[i]['id'])
+                
+                      p['assoc'] = temp_id
+                         
+         
+          for i, val in enumerate(transformed_observations):
+              
+                transformed_obs = {'x': transformed_x, 'y': transformed_y}
+                
+                single_landmark_k = []
+                single_landmark = {}
+ 
+                for i, val in enumerate(landmarks):
+                    d = distance(transformed_obs, val)
+                    single_landmark_k.append({'d': d, 'x': val['x'], 'y': val['y']})
+                    
 
+                distance_min = single_landmark_k[0]['dist']
+                single_landmark = single_landmark_k[0]
+
+                for j in range(1, len(single_landmark_k)):
+                    if distance_min >= single_landmark_k[j]['dist']:
+                        single_landmark = single_landmark_k[j]
+
+
+                normalizer = 1./ 2. * np.pi * std_landmark_x * std_landmark_y
+
+                exponent = pow((transformed_obs['x'] - single_landmark['x']), 2) / pow(std_landmark_x, 2) + pow((transformed_obs['y'] - single_landmark['y']), 2) /pow(std_landmark_y, 2)
+
+                obs_w = normalizer * math.exp((-0.5 * exponent))  
+                obs_w +=  1e-25
+
+                wt *= obs_w
+
+            p['w'] = wt
+                
         pass
 
     # Resample particles with replacement with probability proportional to
     #   their weights.
     def resample(self):
-        return
-        # TODO: Select (possibly with duplicates) the set of particles
-        #       that captures the posteior belief distribution, by
-        # 1. Drawing particle samples according to their weights.
-        # 2. Make a copy of the particle; otherwise the duplicate particles
-        #    will not behave independently from each other - they are
-        #    references to mutable objects in Python.
-        # Finally, self.particles shall contain the newly drawn set of
-        #   particles.
+        import copy 
+        from scipy import stats
+
+        w = [p['w'] for p in self.particles]
+
+        
+        pk = weights/np.sum(w)
+
+
+
+        xk = np.arange(len(self.particles))
+
+       
+
+        cus = stats.rv_discrete(name="paticles", values=(xk, pk))
+
+        resampled_idx = cus.rvs(size=self.num_particles)
+
+       
+        r_p = []
+
+        for i in resampled_idx:
+             resampled_particles.append(copy.deepcopy(self.particles[i]))
+
+        self.particles = r_p
+          
+   
 
         pass
 
