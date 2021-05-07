@@ -34,6 +34,41 @@ class GNB():
         for each class. Record them for later use in prediction.
         '''
         # TODO: implement code.
+        temp_label = {}
+        temp_label['left'] = []
+        temp_label['keep'] = []
+        temp_label['right'] = []
+
+        for label in self.classes:
+            for i in range(4):
+                temp_label[label].append([])
+        
+        for i in range(len(X)):
+            x = X[i]
+            label = Y[i]
+
+            x = self.process_vars(x)
+
+            for idx, val in enumerate(x):
+                temp_label[label][idx].append(val)
+            
+        mean = []
+        std = []
+
+        for i in self.classes:
+            mean.append([])
+            std.append([])
+
+            for v in temp_label[i]:
+                m = np.mean(v)
+                s = np.std(v)
+
+                mean[-1].append(m)
+                std[-1].append(s)
+        
+        self.means = mean
+        self.stds = std
+
 
     # Given an observation (s, s_dot, d, d_dot), predict which behaviour
     # the vehicle is going to take using GNB.
@@ -46,5 +81,37 @@ class GNB():
         Return the label for the highest conditional probability.
         '''
         # TODO: implement code.
-        return "keep"
+        prob = []
+        observation = self.process_vars(observation)
+        for i in range(len(self.means)):
+            m = self.means[i]
+            s = self.stds[i]
+            l = self.classes[i]
+
+            product = 1
+
+            for j in range(len(m)):
+                mu = m[j]
+                sig = s[j]
+                o = observation[i]
+
+                liklihood_temp = gaussian_prob(o,mu,sig)
+                product = product * liklihood_temp
+            prob.append(product)
+        sum_prob = sum(prob)
+
+        probs = [p/sum_prob for p in prob]
+
+        index = 0
+        best = 0
+
+        for i, p in enumerate(probs):
+            if p > best:
+                best = p
+                index = 1
+        names = ['left','keep','right']
+
+
+        return names[index]
+
 

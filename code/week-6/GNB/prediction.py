@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+  #!/usr/bin/env python3
 
 from classifier import GNB
 import json
 
 def main():
 	gnb = GNB()
-	with open('train.json', 'rb') as f:
+	with open('train.json', 'r') as f:
 		j = json.load(f)
 	X = j['states']
 	Y = j['labels']
 	gnb.train(X, Y)
 
-	with open('test.json', 'rb') as f:
+	with open('test.json', 'r') as f:
 		j = json.load(f)
 
 	X = j['states']

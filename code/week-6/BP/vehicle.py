@@ -26,19 +26,16 @@ class Vehicle(object):
         Implement the transition function code for the vehicle's
         behaviour planning finite state machine, which operates based on
         the cost function (defined in a separate module cost_functions.py).
-
         INPUTS: A predictions dictionary with vehicle id keys and predicted
             vehicle trajectories as values. Trajectories are a list of
             Vehicle objects representing the vehicle at the current timestep
             and one timestep in the future.
         OUTPUT: The the best (lowest cost) trajectory corresponding to
             the next ego vehicle state.
-
         Functions that will be useful:
         1. successor_states():
             Returns a vector of possible successor states
             for the finite state machine.
-
         2. generate_trajectory(self, state, predictions):
             Returns a vector of Vehicle objects representing a
             vehicle trajectory, given a state and predictions.
@@ -47,7 +44,6 @@ class Vehicle(object):
             vehicle is occupying the space to the ego vehicle's right,
             then there is no possible trajectory without first
             transitioning to another state.
-
         3. calculate_cost(vehicle, trajectory, predictions):
             Imported from cost_functions.py, computes the cost for
             a trajectory.
@@ -58,6 +54,24 @@ class Vehicle(object):
 
         # Note that the return value is a trajectory, where a trajectory
         # is a list of Vehicle objects with two elements.
+
+        states = self.successor_states()
+        cost = 0
+
+        costs = []
+        final_states = []
+        final_trajectories = []
+
+        for s in states:
+            trajectory = self.generate_trajectory(s,predictions)
+
+            if len(trajectory) != 0 :
+                
+                cost = calculate_cost(self,trajectory,predictions)
+                costs.append(cost)
+                final_trajectories.append(trajectory)
+
+
         return [
             Vehicle(self.lane, self.s, self.v, self.a, self.state),
             Vehicle(self.lane, self.position_at(1), self.v, 0, self.state)
