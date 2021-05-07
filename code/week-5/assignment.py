@@ -71,8 +71,7 @@ def optimum_policy_2D(grid, init, goal, cost):
             # Mark the final state with a special value that we will
             # use in generating the final path policy.
             if (y, x) == goal and value[(t, y, x)] > 0:
-                # TODO: implement code.
-                # M2021077 Sunpil Kim
+       
                 value[(t,y,x)] = 0
                 # Final Marker --> -444
                 policy[(t,y,x)] = -444
