@@ -2,6 +2,11 @@
 
 ---
 
+1 . 현재 위치 자표가 도착지에 도달할때, policy에 영향을 주지 않는 특정숫자로 표기한다.
+2 . 도착지가 아닐 경우에 행동 상태를 반복해서 계산된 가치를 기준으로 행동을 업데이트한다.
+3 .  2차원 경로이동 행동 상태를 기록하여 시각화
+
+
 ## Examples
 
 We have four small working examples for demonstration of basic path planning algorithms:
